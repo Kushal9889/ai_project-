@@ -62,17 +62,27 @@ def compute_aspect_scores(
     aspect_strengths = {k: [] for k in adapter_cfg["aspect_weights"].keys()}
     aspect_counts = {k: 0 for k in adapter_cfg["aspect_weights"].keys()}
 
-    # when sentence-level sentiment isn't available, fall back to review-level
+    # compute sentence-level sentiment when possible (fast lexicon fallback available)
+    from .utils_text import analyze_sentence_sentiment
     for (ridx, sent), asp in zip(review_sentence_pairs, aspects):
         if asp not in aspect_compounds:
             continue
-        # fetch review-level sentiment metrics
+        # compute a fast local sentence-level sentiment (deterministic, cheap)
         try:
-            compound = float(genuine_df.loc[ridx, sentiment_col]) if sentiment_col in genuine_df.columns else 0.0
-            strength = float(genuine_df.loc[ridx, strength_col]) if strength_col in genuine_df.columns else 0.0
+            s_compound, s_strength = analyze_sentence_sentiment(str(sent))
         except Exception:
-            compound = 0.0
-            strength = 0.0
+            s_compound, s_strength = 0.0, 0.0
+
+        # If sentence-level scorer returned neutral, fall back to review-level if available
+        if (abs(s_compound) < 1e-6 and s_strength < 1e-6) and sentiment_col in genuine_df.columns:
+            try:
+                compound = float(genuine_df.loc[ridx, sentiment_col])
+                strength = float(genuine_df.loc[ridx, strength_col]) if strength_col in genuine_df.columns else 0.0
+            except Exception:
+                compound, strength = 0.0, 0.0
+        else:
+            compound, strength = s_compound, s_strength
+
         aspect_compounds[asp].append(compound)
         aspect_strengths[asp].append(strength)
         aspect_counts[asp] += 1

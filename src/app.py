@@ -176,6 +176,21 @@ def group_models(names: List[str], cutoff: float = 0.85) -> Dict[str, List[str]]
     return {k: sorted(set(v)) for k, v in bases.items() if v}
 
 
+def _cols_up_to_price(df: pd.DataFrame) -> list:
+    """Return a list of columns up to and including the first 'price' column (case-insensitive).
+
+    If no price column is present, return the original column order.
+    """
+    if df is None or df.columns is None:
+        return []
+    cols = list(df.columns)
+    lower = [c.lower() for c in cols]
+    if 'price' in lower:
+        idx = lower.index('price')
+        return cols[: idx + 1]
+    return cols
+
+
 def detect_brands(df: pd.DataFrame, product_col: str) -> Tuple[pd.DataFrame, List[str]]:
     """Attempt to infer a `brand` column from the `product` values.
 
@@ -216,19 +231,70 @@ def show_product_details(name: str, result: Dict):
     """Show full details for a product result in an expander."""
     with st.expander(f"Details — {name}", expanded=True):
         st.markdown(f"**Final score:** {result.get('trust', {}).get('final_score')}")
+
+        # Friendly per-aspect contribution breakdown (effective weight, aspect score, absolute contribution)
+        trust_block = result.get('trust', {}) or {}
+        asp_scores = trust_block.get('aspect_scores', {}) or {}
+        asp_weights = trust_block.get('aspect_weights_effective', {}) or {}
+        asp_contribs = trust_block.get('aspect_contributions', {}) or {}
+
+        # Build a sorted, user-friendly table (sorted by contribution desc)
+        contrib_rows = []
+        all_asps = sorted(set(list(asp_weights.keys()) + list(asp_scores.keys()) + list(asp_contribs.keys())),
+                          key=lambda k: -(asp_contribs.get(k, 0) or 0))
+        for asp in all_asps:
+            w = asp_weights.get(asp)
+            s = asp_scores.get(asp)
+            c = asp_contribs.get(asp)
+            w_display = f"{w*100:.1f}%" if (w is not None) else "—"
+            s_display = f"{s:.2f}" if (s is not None) else "n/a"
+            c_display = f"{c:.2f}" if (c is not None) else "n/a"
+            contrib_rows.append((asp.replace('_', ' ').title(), w_display, s_display, c_display))
+
+        if contrib_rows:
+            try:
+                import pandas as _pd
+                st.markdown("#### Contributions by aspect")
+                st.table(_pd.DataFrame(contrib_rows, columns=["Aspect", "Effective weight", "Aspect score", "Contribution"]))
+            except Exception:
+                for a, w, s, c in contrib_rows:
+                    st.markdown(f"**{a}** — weight: {w}, score: {s}, contribution: {c}")
+
         st.markdown(f"**Confidence:** {result.get('trust', {}).get('confidence')}")
         st.markdown(f"**Fake reviews:** {result.get('fake_count')} of {result.get('n_total')} ({result.get('fake_pct'):.1f}%)")
         st.subheader("Balanced summary")
         st.write(result.get('summ', {}).get('balanced_summary'))
+        # Detailed aspect breakdown as nested expanders (cleaner than raw JSON)
         st.subheader("Aspect breakdown")
-        st.json(result.get('summ', {}).get('aspect_breakdown'))
+        asp_break = result.get('summ', {}).get('aspect_breakdown', {}) or {}
+        if asp_break:
+            for asp, text in asp_break.items():
+                with st.expander(f"{asp.replace('_', ' ').title()}", expanded=False):
+                    st.write(text)
+        else:
+            st.info("No aspect summaries available.")
+
+        # Compact trust details (show key metrics without JSON dump)
         st.subheader("Trust details")
-        st.json(result.get('trust'))
+        trust = result.get('trust', {}) or {}
+        trust_rows = [
+            ("Final score", trust.get('final_score')),
+            # Confidence and N reviews intentionally removed for cleaner UI
+        ]
+        try:
+            import pandas as _pd
+            st.table(_pd.DataFrame(trust_rows, columns=["metric", "value"]))
+        except Exception:
+            for k, v in trust_rows:
+                st.markdown(f"**{k}:** {v}")
 
 
 
 # Sidebar / runtime configuration
 st.sidebar.header("Settings")
+
+# Primary action selector moved to the top of the sidebar for clearer UX
+tab = st.sidebar.selectbox("Action", ["Demo sample", "Upload CSV", "Analyze YouTube Video"]) 
 
 # Provider selection (moved before mock_mode so it can auto-set the mode)
 st.sidebar.subheader("Sentiment Provider")
@@ -251,6 +317,11 @@ selected_provider = provider_map[sentiment_provider]
 # Mock provider -> mock_mode=True
 # HuggingFace/Ollama -> mock_mode=False (use real APIs)
 auto_mock_mode = (selected_provider == "mock")
+
+# Fast/local mode removed from sidebar per UX request; default to False.
+fast_local_mode = False
+
+# Controls
 mock_mode = st.sidebar.checkbox(
     "Mock mode for fake detection & summarization", 
     value=auto_mock_mode,
@@ -270,9 +341,8 @@ if st.session_state.get('last_settings') != current_settings:
         st.sidebar.info("⚠️ Settings changed! Click 'Analyze selection' to update results.")
     st.session_state['settings_changed_once'] = True
 
-adapter = get_adapter()
-st.sidebar.markdown("Adapter: Smartphones (preloaded)")
-rep_mode = st.sidebar.selectbox("Representative examples mode", ["Review-level (majority)", "Sentence-level (strict)"], index=0)
+# (Adapter and representative examples hidden for simplified sidebar)
+rep_mode = "Review-level (majority)"
 
 # Conditional inputs based on provider
 hf_api_key = None
@@ -294,22 +364,14 @@ elif selected_provider == "ollama":
     # Hint to install if not present
     st.sidebar.caption(f"Command to install: `ollama pull {ollama_model}`")
 
-# Legacy HF checkbox support (kept for backward compatibility)
-use_hf = st.sidebar.checkbox("Use Hugging Face Inference API", False, key="use_hf_legacy")
-if use_hf:
-    st.sidebar.warning("⚠️ Legacy 'Use HF' checkbox is deprecated. Please use the Provider selector above.")
-
 if getattr(sentiment_engine, 'HF_MODELS_UNAVAILABLE', None):
     st.sidebar.warning("One or more Hugging Face models used by the app are unavailable; the app will use internal mock fallbacks for those models.")
-if st.sidebar.checkbox("Show configuration (DEBUG)"):
-    st.sidebar.json(DEFAULT_CONFIG)
-    try:
-        st.sidebar.write("Active Personal Weights:")
-        st.sidebar.json(active_adapter["aspect_weights"])
-    except Exception:
-        st.sidebar.write("Adapter details not available")
 
-tab = st.sidebar.selectbox("Action", ["Demo sample", "Upload CSV", "Analyze YouTube Video"]) 
+# Debug / advanced (hidden by default)
+# NOTE: per request, the debug configuration toggle has been removed from the
+# visible sidebar to simplify UX. If you need to inspect the config while
+# developing, enable the DEBUG checkbox here or run in a development branch.
+
 
 
 def run_pipeline_on_df(sub_df: pd.DataFrame, max_reviews: int = 0, hf_client=None, provider="mock", ollama_model="llama3.2:3b", adapter=None):
@@ -405,7 +467,11 @@ def _show_representative_reviews(sent_df: pd.DataFrame, label: str = "Representa
                         meta = {"compound": float(chosen_pos.get("compound", 0.0)), "strength": float(chosen_pos.get("strength", 0.0)), "hf_fake_score": float(chosen_pos.get("hf_fake_score", 0.0))}
                         if "rating" in chosen_pos.index:
                             meta["rating"] = float(chosen_pos.get("rating", None))
-                        st.json(meta)
+                        try:
+                            import pandas as _pd
+                            st.table(_pd.DataFrame([meta]))
+                        except Exception:
+                            st.write(meta)
                     else:
                         st.write("No sufficiently positive representative found.")
                 with c2:
@@ -415,7 +481,11 @@ def _show_representative_reviews(sent_df: pd.DataFrame, label: str = "Representa
                         meta2 = {"compound": float(chosen_neg.get("compound", 0.0)), "strength": float(chosen_neg.get("strength", 0.0)), "hf_fake_score": float(chosen_neg.get("hf_fake_score", 0.0))}
                         if "rating" in chosen_neg.index:
                             meta2["rating"] = float(chosen_neg.get("rating", None))
-                        st.json(meta2)
+                        try:
+                            import pandas as _pd
+                            st.table(_pd.DataFrame([meta2]))
+                        except Exception:
+                            st.write(meta2)
                     else:
                         st.write("No sufficiently negative representative found.")
                 return
@@ -436,12 +506,20 @@ def _show_representative_reviews(sent_df: pd.DataFrame, label: str = "Representa
         st.markdown("**Positive example**")
         st.write(pos["reviewText"])
         meta = {"compound": float(pos.get("compound", 0.0)), "strength": float(pos.get("strength", 0.0))}
-        st.json(meta)
+        try:
+            import pandas as _pd
+            st.table(_pd.DataFrame([meta]))
+        except Exception:
+            st.write(meta)
     with col2:
         st.markdown("**Negative example**")
         st.write(neg["reviewText"])
         meta2 = {"compound": float(neg.get("compound", 0.0)), "strength": float(neg.get("strength", 0.0))}
-        st.json(meta2)
+        try:
+            import pandas as _pd
+            st.table(_pd.DataFrame([meta2]))
+        except Exception:
+            st.write(meta2)
 
 
 if tab == "Demo sample":
@@ -454,7 +532,12 @@ if tab == "Demo sample":
         st.stop()
 
     st.subheader("Demo: sample reviews")
-    st.write(df.head())
+    # Show a compact demo preview limited to columns up to 'price' to keep the UI clean
+    demo_cols = _cols_up_to_price(df)
+    try:
+        st.dataframe(df[demo_cols].head(10).reset_index(drop=True))
+    except Exception:
+        st.dataframe(df.head(10).reset_index(drop=True))
 
     # Correct call to run_pipeline_on_df passing the active_adapter
     # For demo, we use default adapter unless user overrides in main UI (which is not shown for demo)
@@ -470,10 +553,26 @@ if tab == "Demo sample":
     st.markdown("---")
 
     st.subheader("Sentiment summary")
-    st.json(out["sent"]["summary"])
+    sent_summary = out.get("sent", {}).get("summary") or {}
+    if sent_summary:
+        # show basic counts and a short human-readable summary if available
+        st.markdown("**Sentiment summary (counts):**")
+        try:
+            import pandas as _pd
+            st.table(_pd.DataFrame([sent_summary]))
+        except Exception:
+            st.write(sent_summary)
+    else:
+        st.info("No sentiment summary available.")
 
     st.subheader("Aspect breakdown & summaries")
-    st.json(out["summ"].get("aspect_breakdown"))
+    asp_break = out.get("summ", {}).get("aspect_breakdown") or {}
+    if asp_break:
+        for asp, txt in asp_break.items():
+            with st.expander(f"{asp.replace('_',' ').title()}"):
+                st.write(txt)
+    else:
+        st.info("No aspect breakdown available.")
 
 
 elif tab == "Upload CSV":
@@ -493,7 +592,16 @@ elif tab == "Upload CSV":
             st.stop()
 
         df, product_col = ensure_product_column(df)
-        st.write(df.head())
+        # Do not show the raw CSV immediately. The app will display
+        # a dynamic table of the genuine reviews (those NOT detected as
+        # fake) only after the user clicks "Analyze selection". This
+        # keeps the upload step lightweight and moves the processed
+        # preview into the pipeline stage where it is meaningful.
+        st.info("CSV uploaded. Configure options below and click 'Analyze selection' to preview the processed (genuine) reviews used for analysis.")
+        # Clear any previous analysis state when a new file is uploaded
+        for k in ["last_results", "last_df_rows", "last_genuine_df", "last_analysis_adapter_weights", "_genuine_accumulator_df"]:
+            if k in st.session_state:
+                del st.session_state[k]
         st.markdown("---")
         st.info("Step 1: (optional) choose price range, product grouping and number of rows (n) to analyze.")
         
@@ -615,27 +723,63 @@ elif tab == "Upload CSV":
         analyze_btn = st.button("Analyze selection")
 
         # ensure hf_client exists
-        hf_client = MockHFClient()
-        if selected_provider == "huggingface" and hf_api_key:
-            hf_client = HFClient(api_key=hf_api_key)
-        elif selected_provider == "huggingface":
-            try:
-                hf_client = HFClient()
-            except Exception:
-                hf_client = MockHFClient()
+        # If fast_local_mode is enabled, force MockHFClient to avoid remote calls
+        if fast_local_mode:
+            hf_client = MockHFClient()
+            used_provider = "mock"
+        else:
+            hf_client = MockHFClient()
+            if selected_provider == "huggingface" and hf_api_key:
+                hf_client = HFClient(api_key=hf_api_key)
+                used_provider = "huggingface"
+            elif selected_provider == "huggingface":
+                try:
+                    hf_client = HFClient()
+                    used_provider = "huggingface"
+                except Exception:
+                    hf_client = MockHFClient()
+                    used_provider = "mock"
+            else:
+                used_provider = selected_provider
 
         if analyze_btn:
             results = {}
+            # Progress UI: create a progress bar and status placeholders
+            # determine which product groups to analyze based on user choice
+            if choice is None:
+                selected_bases = list(grouping_map.keys())
+            elif choice == "All (per-product)":
+                selected_bases = list(grouping_map.keys())
+            else:
+                # only analyze the chosen product group
+                selected_bases = [choice]
+
+            total_products = len(selected_bases)
+            # Each product runs through 4 logical steps: fake-detect, sentiment, summarize, trust
+            steps_per_product = 4
+            total_steps = max(1, total_products * steps_per_product)
+            progress_bar = st.progress(0)
+            status_text = st.empty()
+            step_text = st.empty()
+
             # Process each group
-            for base, variants in grouping_map.items():
+            for idx, base in enumerate(selected_bases):
+                variants = grouping_map.get(base, [])
+                # update status for which product we're starting
+                status_text.info(f"Analyzing product {idx+1}/{total_products}: '{base}'")
+                # compute base step offset for this product
+                base_step = idx * steps_per_product
+                step_counter = 0
+                # refresh progress for starting this product
+                progress_bar.progress(int(((base_step + step_counter) / total_steps) * 100))
                 sub = df[df[product_col].fillna("(unknown)").astype(str).isin(variants)].reset_index(drop=True)
                 if len(sub) == 0:
                     continue
                 if int(max_reviews) > 0:
                     sub = sub.head(int(max_reviews)).reset_index(drop=True)
-
                 # --- MANUAL PIPELINE STEPS FOR PER-PRODUCT ANALYSIS ---
                 # Step A: Fake detection (Passing provider explicitly)
+                step_text.markdown("**Step A:** Fake detection")
                 df1 = detect_fake_reviews(
                     sub, 
                     hf_client=hf_client, 
@@ -643,22 +787,59 @@ elif tab == "Upload CSV":
                     provider=selected_provider, 
                     ollama_model=ollama_model
                 )
+                # update progress after fake detection
+                step_counter += 1
+                progress_bar.progress(int(((base_step + step_counter) / total_steps) * 100))
                 fake_count = int(df1.get("is_fake", pd.Series([False] * len(df1))).sum())
                 n_total = len(df1)
                 fake_pct = 100.0 * fake_count / n_total if n_total > 0 else 0.0
-
                 # Step B: Sentiment Analysis
+                step_text.markdown("**Step B:** Sentiment analysis")
                 sent_res = analyze_sentiments(df1, hf_client=hf_client, provider=selected_provider, ollama_model=ollama_model)
+                # update progress after sentiment
+                step_counter += 1
+                progress_bar.progress(int(((base_step + step_counter) / total_steps) * 100))
                 sent_df = sent_res["df"]
 
                 # Step C: Summarize
+                step_text.markdown("**Step C:** Summarization")
                 genuine = sent_df[~sent_df["is_fake"]].reset_index(drop=True) if "is_fake" in sent_df.columns else sent_df
                 summ = summarize_reviews(genuine, hf_client=hf_client, mock_mode=mock_mode, provider=selected_provider, ollama_model=ollama_model)
+                # update progress after summarization
+                step_counter += 1
+                progress_bar.progress(int(((base_step + step_counter) / total_steps) * 100))
 
                 # Step D: Trust score (USING PERSONALIZED ADAPTER)
+                step_text.markdown("**Step D:** Compute trust score")
                 trust = compute_trust_score(sent_df, active_adapter)
+                # update progress after trust scoring
+                step_counter += 1
+                progress_bar.progress(int(((base_step + step_counter) / total_steps) * 100))
 
-                results[base] = {"df1": df1, "sent": sent_res, "summ": summ, "trust": trust, "fake_count": fake_count, "fake_pct": fake_pct, "n_total": n_total}
+                # Store the genuine reviews used for summarization/LLM steps so
+                # the UI can display precisely what was passed on to the models.
+                results[base] = {
+                    "df1": df1,
+                    "sent": sent_res,
+                    "genuine_df": genuine,
+                    "summ": summ,
+                    "trust": trust,
+                    "fake_count": fake_count,
+                    "fake_pct": fake_pct,
+                    "n_total": n_total,
+                }
+
+                # accumulate across products into a single DataFrame for display
+                existing = st.session_state.get("_genuine_accumulator_df")
+                if existing is None:
+                    st.session_state["_genuine_accumulator_df"] = genuine.copy()
+                else:
+                    st.session_state["_genuine_accumulator_df"] = pd.concat([existing, genuine], ignore_index=True)
+
+            # finalize progress
+            progress_bar.progress(100)
+            status_text.success("Analysis complete")
+            step_text.empty()
 
             # Create summary rows
             rows = [
@@ -692,6 +873,34 @@ elif tab == "Upload CSV":
             }
             
             st.info(f"📊 **Analysis Results** | Sentiment Provider: **{provider_display.get(analysis_provider, analysis_provider)}** | Fake Detection: **{'Mock Mode' if analysis_mock_mode else 'Real Mode'}**")
+
+            # Show the dynamic table of genuine reviews that were actually
+            # used for summarization/LLM steps. This appears after analysis
+            # and reflects the rows that passed fake-detection.
+            with st.expander("Genuine reviews used for analysis", expanded=False):
+                cum = st.session_state.get("_genuine_accumulator_df")
+                if cum is not None and not cum.empty:
+                    st.markdown("**All genuine rows (combined across selected products):**")
+                    cols = _cols_up_to_price(cum)
+                    try:
+                        st.dataframe(cum[cols].reset_index(drop=True))
+                    except Exception:
+                        st.dataframe(cum.reset_index(drop=True))
+                else:
+                    st.info("No genuine reviews available yet. Run 'Analyze selection' to populate this view.")
+
+                # Per-product breakouts
+                for prod_name, rdata in results.items():
+                    with st.expander(f"{prod_name} — Genuine reviews", expanded=False):
+                        gdf = rdata.get('genuine_df')
+                        if gdf is None or gdf.empty:
+                            st.write("No genuine reviews for this product (all reviews flagged as fake or none passed filters).")
+                        else:
+                            cols = _cols_up_to_price(gdf)
+                            try:
+                                st.dataframe(gdf[cols].reset_index(drop=True))
+                            except Exception:
+                                st.dataframe(gdf.reset_index(drop=True))
 
             if choice == "All (per-product)":
                 st.markdown("**Sort results (interactive)**")
@@ -740,10 +949,73 @@ elif tab == "Upload CSV":
                     expanded = prod == st.session_state.get('selected_product') or prod == st.session_state.get('pinned_product')
                     with st.expander(f"Details: {prod}", expanded=bool(expanded)):
                         st.markdown(f"**Fake reviews:** {r.get('fake_count')} of {r.get('n_total')} ({r.get('fake_pct'):.1f}%)")
-                        st.json(r.get("trust"))
+                        # Compact trust summary instead of raw JSON — show only Final score
+                        tr = r.get('trust', {}) or {}
+                        colm, colv = st.columns([1,2])
+                        with colm:
+                            st.markdown("**Final score**")
+                        with colv:
+                            try:
+                                st.markdown(f"{tr.get('final_score', 'N/A')}")
+                            except Exception:
+                                st.write(tr)
                         st.subheader("Balanced summary")
                         st.write(r.get("summ", {}).get("balanced_summary"))
                         
+                        # Insert nested "Detailed analysis" expander containing
+                        # one sub-expander per adapter aspect (battery, camera, ...)
+                        with st.expander("Detailed analysis", expanded=False):
+                            # aspect list in preferred display order
+                            detail_aspects = ["battery", "camera", "performance", "display", "build", "software", "connectivity", "value"]
+                            # try to get available data from the result
+                            asp_scores = (r.get("trust", {}) or {}).get("aspect_scores", {}) or {}
+                            asp_counts = (r.get("trust", {}) or {}).get("aspect_counts", {}) or {}
+                            asp_texts = (r.get("summ", {}) or {}).get("aspect_breakdown", {}) or {}
+                            sent_df = (r.get('sent', {}) or {}).get('df')
+                            # keywords and min mentions from adapter for sentence matching
+                            try:
+                                from src.adapters.phone_adapter import ASPECT_KEYWORDS, MIN_MENTIONS_FOR_CONFIDENCE
+                            except Exception:
+                                ASPECT_KEYWORDS = {}
+                                MIN_MENTIONS_FOR_CONFIDENCE = {}
+
+                            for asp in detail_aspects:
+                                score_val = asp_scores.get(asp)
+                                header = f"{asp.replace('_', ' ').title()}"
+                                if score_val is not None:
+                                    header = f"{header} — Score: {float(score_val):.1f}"
+                                # each aspect gets its own nested expander
+                                with st.expander(header, expanded=False):
+                                    # show aspect-level text summary if available
+                                    txt = asp_texts.get(asp)
+                                    if txt:
+                                        st.write(txt)
+
+                                    # show mention count (if present)
+                                    mention_ct = asp_counts.get(asp)
+                                    if mention_ct is not None:
+                                        st.markdown(f"**Mentions:** {mention_ct}")
+
+                                    # show up to 3 example sentences from genuine reviews that mention an aspect keyword
+                                    kws = ASPECT_KEYWORDS.get(asp, [])
+                                    if sent_df is not None and 'reviewText' in sent_df.columns and kws:
+                                        examples = []
+                                        for txt_row in sent_df['reviewText'].fillna("").astype(str).tolist():
+                                            lowered = txt_row.lower()
+                                            for k in kws:
+                                                if k in lowered:
+                                                    # split into sentences and pick ones containing keyword
+                                                    for sent in [s.strip() for s in __import__('re').split(r'[.!?]+', txt_row) if s.strip()]:
+                                                        if k in sent.lower():
+                                                            examples.append(sent.strip())
+                                                            break
+                                            if len(examples) >= 3:
+                                                break
+                                        if examples:
+                                            st.markdown("**Example sentences (up to 3):**")
+                                            for ex in examples[:3]:
+                                                st.write(f"- {ex}")
+
                         aspect_scores = r.get("trust", {}).get("aspect_scores", {}) or {}
                         available_aspects = {k: v for k, v in aspect_scores.items() if v is not None}
                         best_aspect = None
@@ -764,6 +1036,34 @@ elif tab == "Upload CSV":
                         st.metric("Final Trust Score", f"{trust.get('final_score', 0.0):.1f}")
                     except Exception:
                         st.write(f"Final Trust Score: {trust.get('final_score', 0.0):.1f}")
+
+                    # Show fake-review counts and percentage (these reviews were excluded from LLM analysis)
+                    fake_count = r.get('fake_count', None)
+                    n_total = r.get('n_total', None)
+                    if fake_count is not None and n_total is not None:
+                        try:
+                            fake_pct = (100.0 * fake_count / n_total) if n_total > 0 else 0.0
+                            col_a, col_b = st.columns([1,2])
+                            with col_a:
+                                st.metric("Fake reviews", f"{fake_count}/{n_total}")
+                            with col_b:
+                                st.metric("Excluded from analysis", f"{fake_pct:.1f}%")
+                            st.caption("Note: Detected fake reviews (shown above) were excluded from the LLM sentiment/summarization steps and do not contribute to aspect scores.")
+                        except Exception:
+                            # Fallback simple display
+                            st.write(f"Fake reviews: {fake_count} of {n_total}")
+
+                    # Show the genuine reviews that were used for LLM/summarization
+                    with st.expander("Genuine reviews used for analysis", expanded=True):
+                        gdf = r.get('genuine_df')
+                        if gdf is None or gdf.empty:
+                            st.info("No genuine reviews available for this product (all reviews may have been flagged as fake or filtered out).")
+                        else:
+                            cols = _cols_up_to_price(gdf)
+                            try:
+                                st.dataframe(gdf[cols].reset_index(drop=True))
+                            except Exception:
+                                st.dataframe(gdf.reset_index(drop=True))
                     
                     st.subheader("Aspect Quality Scores")
                     aspect_scores = trust.get("aspect_scores", {}) or {}
@@ -780,7 +1080,50 @@ elif tab == "Upload CSV":
                                     st.write(f"**{aspect.replace('_', ' ').title()}:** {score:.1f}")
                     else:
                         st.info("No aspect scores available for this product.")
-                    
+                    # --- Score breakdown expander (weights, aspect scores, contributions) ---
+                    st.markdown("")
+                    with st.expander("Score breakdown — weights & contributions", expanded=False):
+                        st.markdown("**What you see here:** each aspect's configured weight (percentage), the computed aspect score (0-100), and its weighted contribution to the final trust score.")
+                        st.markdown("---")
+                        # Show both the user's configured weights (personalization) and the
+                        # effective normalized weights used in the final calculation.
+                        weights_effective = trust.get('aspect_weights_effective', {}) or {}
+                        contributions = trust.get('aspect_contributions', {}) or {}
+                        configured = used_weights if 'used_weights' in locals() else st.session_state.get('last_analysis_adapter_weights', {})
+                        # Build a compact table with configured weight, effective weight, score and contribution
+                        # Order aspects dynamically by the user's configured priority (highest configured weight first)
+                        all_asps = ["battery", "camera", "performance", "display", "build", "software", "connectivity", "value"]
+                        # ensure configured weights are numeric
+                        cfg_map = {a: float(configured.get(a, 0.0)) for a in all_asps}
+                        # order by configured weight descending so the user's priorities appear first
+                        ordered_asps = sorted(all_asps, key=lambda a: cfg_map.get(a, 0.0), reverse=True)
+                        rows = []
+                        for asp in ordered_asps:
+                            cfg_w = cfg_map.get(asp, 0.0)
+                            eff_w = float(weights_effective.get(asp, 0.0))
+                            score = aspect_scores.get(asp)
+                            # compute contribution from effective weight and score (score may be None)
+                            contrib_val = 0.0
+                            if score is not None:
+                                try:
+                                    contrib_val = float(score) * eff_w
+                                except Exception:
+                                    contrib_val = 0.0
+                            rows.append({
+                                "aspect": asp.replace('_',' ').title(),
+                                "configured_weight": f"{cfg_w*100:.0f}%",
+                                "effective_weight": f"{eff_w*100:.0f}%",
+                                "score": f"{score:.1f}" if score is not None else "N/A",
+                                "contribution": f"{contrib_val:.2f}",
+                                "calculation": (f"{score:.1f} * {eff_w:.2f} = {contrib_val:.2f}" if score is not None else "-")
+                            })
+                        try:
+                            import pandas as _pd
+                            st.table(_pd.DataFrame(rows))
+                        except Exception:
+                            for r in rows:
+                                st.markdown(f"- **{r['aspect']}** — Weight: {r['weight_pct']} | Score: {r['score']} | Contribution: {r['contribution']}")
+
                     st.subheader("Detailed Aspect Breakdown")
                     aspect_breakdown = r.get("summ", {}).get("aspect_breakdown", {}) or {}
                     
@@ -809,6 +1152,52 @@ elif tab == "Upload CSV":
                                 header = f"{aspect.replace('_', ' ').title()} - Score: {available_aspects.get(aspect, 0):.1f}"
                                 with st.expander(header):
                                     st.write(aspect_text)
+                    # Also show aspects that were NOT included (excluded) with reason and examples
+                    excluded = [a for a, v in (trust.get('aspect_scores', {}) or {}).items() if v is None]
+                    if excluded:
+                        st.subheader("Excluded aspects (not scored)")
+                        # gather genuine review texts to show small examples
+                        sent_df = r.get('sent', {}).get('df', None)
+                        try:
+                            import pandas as _pd
+                        except Exception:
+                            _pd = None
+
+                        if sent_df is not None and _pd is not None and 'reviewText' in sent_df.columns:
+                            genuine_texts_df = sent_df[~sent_df.get('is_fake', _pd.Series([False]*len(sent_df)))] if 'is_fake' in sent_df.columns else sent_df
+                        else:
+                            genuine_texts_df = None
+
+                        from src.adapters.phone_adapter import ASPECT_KEYWORDS, MIN_MENTIONS_FOR_CONFIDENCE
+                        for aspect in excluded:
+                            mention_ct = (trust.get('aspect_counts', {}) or {}).get(aspect, 0)
+                            min_req = MIN_MENTIONS_FOR_CONFIDENCE.get(aspect, 3)
+                            kws = ASPECT_KEYWORDS.get(aspect, [])
+                            with st.expander(f"{aspect.replace('_',' ').title()} — Not scored ({mention_ct}/{min_req} mentions)"):
+                                st.markdown(f"**Reason:** Not enough mentions (required {min_req}, found {mention_ct}).")
+                                # Keywords removed by user request — only show reason & examples
+                                # show up to 3 example sentences from genuine reviews that mention any keyword
+                                if genuine_texts_df is not None:
+                                    examples = []
+                                    for txt in genuine_texts_df['reviewText'].fillna("").astype(str).tolist():
+                                        lowered = txt.lower()
+                                        for k in kws:
+                                            if k in lowered:
+                                                # split into sentences and pick ones containing keyword
+                                                for sent in [s.strip() for s in __import__('re').split(r'[.!?]+', txt) if s.strip()]:
+                                                    if k in sent.lower():
+                                                        examples.append(sent.strip())
+                                                        break
+                                        if len(examples) >= 3:
+                                            break
+                                    if examples:
+                                        st.markdown("**Example mentions (up to 3):**")
+                                        for ex in examples[:3]:
+                                            st.write(f"- {ex}")
+                                    else:
+                                        st.markdown("No example sentences found in genuine reviews for this aspect.")
+                                else:
+                                    st.markdown("No genuine review texts available to show examples.")
                 else:
                     st.warning("Please run 'All (per-product)' analysis first.")
                     if st.button("Analyze this product now"):

@@ -1,0 +1,201 @@
+reviewText,product,rating,price,reviewerID,reviewTime
+"Battery easily lasts through a full day of heavy use with moderate screen-on time.",Apple iPhone 13,5.0,699.00,user_0001,2023-01-05
+"Camera produces crisp daytime shots but struggles a bit in low light scenarios.",Apple iPhone 13,4.0,704.00,user_0002,2023-01-06
+"Face ID works reliably and the build feels premium for the price.",Apple iPhone 13,5.0,699.00,user_0003,2023-01-07
+"Battery degraded a bit faster than expected after several months of heavy gaming.",Apple iPhone 13,2.5,692.00,user_0004,2023-01-08
+"Speakers are loud and clear, great for watching videos on the go.",Apple iPhone 13,4.5,699.00,user_0005,2023-01-09
+"Occasional overheating during long camera shoots, but not a dealbreaker.",Apple iPhone 13,3.0,705.00,user_0006,2023-01-10
+"The screen is bright and color-accurate; everything looks great.",Apple iPhone 13,5.0,699.00,user_0007,2023-01-11
+"I experienced one unexpected reboot after an update; stability has improved since.",Apple iPhone 13,3.5,698.00,user_0008,2023-01-12
+"Excellent performance for multitasking and gaming, no stutters.",Apple iPhone 13,5.0,709.00,user_0009,2023-01-13
+"Wireless charging is convenient but a bit slower than wired charging.",Apple iPhone 13,4.0,699.00,user_0010,2023-01-14
+"Battery life is fine for casual users but heavy users will need a charger by evening.",Apple iPhone 13,3.5,695.00,user_0011,2023-01-15
+"The camera portrait mode is excellent with natural blur and edge detection.",Apple iPhone 13,5.0,699.00,user_0012,2023-01-16
+"Not impressed with the price-to-storage ratio; wish base storage was larger.",Apple iPhone 13,3.0,719.00,user_0013,2023-01-17
+"Build quality feels premium and the phone has held up well to daily drops.",Apple iPhone 13,4.5,699.00,user_0014,2023-01-18
+"iOS updates are smooth and battery optimization has helped a lot.",Apple iPhone 13,5.0,699.00,user_0015,2023-01-19
+"Screen protector needed quickly; glass picks up scratches easily.",Apple iPhone 13,3.0,696.00,user_0016,2023-01-20
+"The camera excels at video stabilization — very smooth footage.",Apple iPhone 13,5.0,699.00,user_0017,2023-01-21
+"Price is steep compared to mid-range alternatives with similar performance.",Apple iPhone 13,3.0,725.00,user_0018,2023-01-22
+"Battery charges quickly with high-watt wired charger; very convenient.",Apple iPhone 13,4.5,699.00,user_0019,2023-01-23
+"Excellent ecosystem integration with other Apple devices I own.",Apple iPhone 13,5.0,699.00,user_0020,2023-01-24
+"Rear camera housing gets smudges easily but image quality remains good.",Apple iPhone 13,4.0,701.00,user_0021,2023-01-25
+"Signal reception is solid, no issues with calls or mobile data.",Apple iPhone 13,4.0,699.00,user_0022,2023-01-26
+"The UI feels polished and responsive; recommended for users who want reliability.",Apple iPhone 13,5.0,699.00,user_0023,2023-01-27
+"Pricey accessories add up; be prepared to spend more for a case and charger.",Apple iPhone 13,3.0,699.00,user_0024,2023-01-28
+"Good battery management but heavy camera/GPS use drains it faster than expected.",Apple iPhone 13,3.5,695.00,user_0025,2023-01-29
+"Photos are color-accurate and sharp; night mode has improved a lot.",Apple iPhone 13,5.0,699.00,user_0026,2023-01-30
+"I miss a higher refresh rate screen — 60Hz feels dated for games.",Apple iPhone 13,3.0,699.00,user_0027,2023-01-31
+"Fast and stable Bluetooth connection for my earbuds.",Apple iPhone 13,4.5,699.00,user_0028,2023-02-01
+"The phone feels heavy after long phone calls; ergonomics could be better.",Apple iPhone 13,3.0,693.00,user_0029,2023-02-02
+"Battery saver modes are effective and extend usage significantly.",Apple iPhone 13,4.0,699.00,user_0030,2023-02-03
+"Occasional app compatibility issues with older apps, but mostly fine.",Apple iPhone 13,3.5,698.00,user_0031,2023-02-04
+"Display brightness in sunlight is excellent; I can read my screen outdoors.",Apple iPhone 13,5.0,699.00,user_0032,2023-02-05
+"Great phone overall; I replaced my older model and it's a solid upgrade.",Apple iPhone 13,5.0,699.00,user_0033,2023-02-06
+"Customer support resolved my issue promptly which was reassuring.",Apple iPhone 13,4.5,699.00,user_0034,2023-02-07
+"Fingerprint or under-screen biometrics would be a nice addition.",Apple iPhone 13,3.0,699.00,user_0035,2023-02-08
+"I use it for streaming and the battery holds up decently for a few hours.",Apple iPhone 13,4.0,699.00,user_0036,2023-02-09
+"Minor software bugs early on but patched quickly via updates.",Apple iPhone 13,4.0,699.00,user_0037,2023-02-10
+"Stylish design and reliable daily performance — worth considering.",Apple iPhone 13,4.5,699.00,user_0038,2023-02-11
+"I upgraded storage and noticed much faster load times for large apps.",Apple iPhone 13,4.5,719.00,user_0039,2023-02-12
+"Overall a great camera phone with balanced battery and performance.",Apple iPhone 13,5.0,699.00,user_0040,2023-02-13
+"Great value when found on discount; otherwise price feels steep.",Samsung Galaxy S21,4.0,799.00,user_0041,2023-02-14
+"Display is vivid with high refresh rate and excellent touch response.",Samsung Galaxy S21,5.0,804.00,user_0042,2023-02-15
+"Battery sometimes struggles on heavy gaming days; otherwise okay.",Samsung Galaxy S21,3.5,792.00,user_0043,2023-02-16
+"Camera versatility is impressive with great zoom and wide-angle shots.",Samsung Galaxy S21,4.5,799.00,user_0044,2023-02-17
+"The phone gets warm during prolonged 5G usage but performance holds up.",Samsung Galaxy S21,3.5,799.00,user_0045,2023-02-18
+"Excellent display for media and gaming; colors pop and motion is smooth.",Samsung Galaxy S21,5.0,799.00,user_0046,2023-02-19
+"I appreciate the microSD slot for extra storage (rare feature).",Samsung Galaxy S21,4.0,799.00,user_0047,2023-02-20
+"Software updates have been timely and the UI is feature-rich.",Samsung Galaxy S21,4.5,799.00,user_0048,2023-02-21
+"Fingerprint sensor occasionally fails, but face unlock works well.",Samsung Galaxy S21,3.5,798.00,user_0049,2023-02-22
+"Charging is fast and battery recovers quickly during short breaks.",Samsung Galaxy S21,4.5,809.00,user_0050,2023-02-23
+"Camera in low light has improved but still shows noise on some shots.",Samsung Galaxy S21,4.0,799.00,user_0051,2023-02-24
+"I had a screen flicker once after an update; reboot fixed it.",Samsung Galaxy S21,3.0,792.00,user_0052,2023-02-25
+"Excellent multitasking thanks to abundant RAM and fast SoC.",Samsung Galaxy S21,5.0,799.00,user_0053,2023-02-26
+"Speaker quality is better than most competitors in this price range.",Samsung Galaxy S21,4.5,799.00,user_0054,2023-02-27
+"I like the camera app's pro mode for manual control over settings.",Samsung Galaxy S21,4.5,799.00,user_0055,2023-02-28
+"Battery life could be better but adaptive settings help a lot.",Samsung Galaxy S21,3.5,784.00,user_0056,2023-03-01
+"Sturdy build and comfortable to hold; case adds protection.",Samsung Galaxy S21,4.0,799.00,user_0057,2023-03-02
+"Occasional GPS drift while using maps, but mostly accurate.",Samsung Galaxy S21,3.5,799.00,user_0058,2023-03-03
+"Excellent photo detail and dynamic range in daylight shots.",Samsung Galaxy S21,5.0,799.00,user_0059,2023-03-04
+"Charging port is durable and supports fast wired charging.",Samsung Galaxy S21,4.5,799.00,user_0060,2023-03-05
+"Display scratches easily without a screen protector; consider adding one.",Samsung Galaxy S21,3.0,799.00,user_0061,2023-03-06
+"5G connectivity is reliable in my area, with strong speeds.",Samsung Galaxy S21,4.5,799.00,user_0062,2023-03-07
+"Edge screen gestures sometimes trigger accidentally; takes getting used to.",Samsung Galaxy S21,3.5,799.00,user_0063,2023-03-08
+"Thermal throttling noticed on long gaming sessions but still playable.",Samsung Galaxy S21,3.0,799.00,user_0064,2023-03-09
+"Camera colors are vibrant and pleasing out of the box.",Samsung Galaxy S21,4.5,799.00,user_0065,2023-03-10
+"Battery improves with background app restrictions enabled.",Samsung Galaxy S21,4.0,799.00,user_0066,2023-03-11
+"Good value on sale; full price feels a bit high for the spec sheet.",Samsung Galaxy S21,3.5,799.00,user_0067,2023-03-12
+"Very responsive display and accurate touch controls for gaming.",Samsung Galaxy S21,5.0,799.00,user_0068,2023-03-13
+"Decent low-light photos but expect some noise at high ISO.",Samsung Galaxy S21,4.0,799.00,user_0069,2023-03-14
+"Overall a well-rounded phone with a strong display and camera.",Samsung Galaxy S21,4.5,799.00,user_0070,2023-03-15
+"Pixel's camera still the best for computational photography in this range.",Google Pixel 6,5.0,599.00,user_0071,2023-03-16
+"Clean Android experience and fast updates are a big plus.",Google Pixel 6,5.0,604.00,user_0072,2023-03-17
+"Battery life improved after disabling some background sync features.",Google Pixel 6,4.0,595.00,user_0073,2023-03-18
+"Amazing low-light photos with night mode; detail is excellent.",Google Pixel 6,5.0,599.00,user_0074,2023-03-19
+"Performance is solid for daily tasks but heavy gaming shows frame drops.",Google Pixel 6,3.5,599.00,user_0075,2023-03-20
+"Screen color consistency is good and viewing angles are wide.",Google Pixel 6,4.5,599.00,user_0076,2023-03-21
+"Occasional Bluetooth disconnects with older accessories.",Google Pixel 6,3.0,599.00,user_0077,2023-03-22
+"Great value for the camera and quick software support from Google.",Google Pixel 6,5.0,599.00,user_0078,2023-03-23
+"Stock Android feels snappy and uncluttered compared to other skins.",Google Pixel 6,5.0,599.00,user_0079,2023-03-24
+"I wish the battery lasted longer under continuous navigation use.",Google Pixel 6,3.0,592.00,user_0080,2023-03-25
+"The camera captures accurate skin tones and natural hues.",Google Pixel 6,5.0,599.00,user_0081,2023-03-26
+"Good thermals overall; doesn't get excessively hot under normal use.",Google Pixel 6,4.0,599.00,user_0082,2023-03-27
+"Face unlock is reliable and quick in most lighting conditions.",Google Pixel 6,4.5,599.00,user_0083,2023-03-28
+"I experienced a few app crashes early on but updates fixed them.",Google Pixel 6,3.5,599.00,user_0084,2023-03-29
+"Charging is fast enough for daily convenience and quick top-ups.",Google Pixel 6,4.5,599.00,user_0085,2023-03-30
+"Stereo speakers are impressive for media playback.",Google Pixel 6,4.5,599.00,user_0086,2023-03-31
+"Camera handles HDR scenes well and preserves highlights.",Google Pixel 6,5.0,599.00,user_0087,2023-04-01
+"Display is sharp but I miss higher refresh rate for smoother scrolling.",Google Pixel 6,3.5,599.00,user_0088,2023-04-02
+"Construction feels solid and buttons have good feedback.",Google Pixel 6,4.0,599.00,user_0089,2023-04-03
+"Pixel's night mode makes low-light photography effortless.",Google Pixel 6,5.0,599.00,user_0090,2023-04-04
+"Some software quirks remain but overall experience is clean.",Google Pixel 6,4.0,599.00,user_0091,2023-04-05
+"Great value for photographers and pixel processing is top-notch.",Google Pixel 6,5.0,599.00,user_0092,2023-04-06
+"Battery holds up for a full day with light to moderate usage.",Google Pixel 6,4.0,599.00,user_0093,2023-04-07
+"Good reception and stable mobile data in urban areas.",Google Pixel 6,4.0,599.00,user_0094,2023-04-08
+"Excellent camera for casual and pro users alike.",Google Pixel 6,5.0,599.00,user_0095,2023-04-09
+"Would prefer a slightly larger battery for intensive users.",Google Pixel 6,3.5,599.00,user_0096,2023-04-10
+"OnePlus delivers solid performance and clean UI at a good price.",OnePlus 9,4.5,729.00,user_0097,2023-04-11
+"Fast charging is a standout feature — quick top-ups during the day.",OnePlus 9,5.0,729.00,user_0098,2023-04-12
+"OxygenOS is smooth and keeps things snappy even after months.",OnePlus 9,4.5,729.00,user_0099,2023-04-13
+"Camera quality improved with recent firmware but still lags the best.",OnePlus 9,3.5,721.00,user_0100,2023-04-14
+"Excellent value for power users who want fast performance.",OnePlus 9,4.5,729.00,user_0101,2023-04-15
+"Battery life is solid but heavy use requires charging by evening.",OnePlus 9,3.5,729.00,user_0102,2023-04-16
+"Display is vibrant with good color reproduction for streaming.",OnePlus 9,4.5,729.00,user_0103,2023-04-17
+"Thermal throttling during long gaming sessions is manageable.",OnePlus 9,3.5,729.00,user_0104,2023-04-18
+"Build feels premium and the phone is comfortable to hold.",OnePlus 9,4.5,729.00,user_0105,2023-04-19
+"Software has useful customization options and performance modes.",OnePlus 9,4.0,729.00,user_0106,2023-04-20
+"Camera captures good detail in daylight but needs improvement in low light.",OnePlus 9,3.5,729.00,user_0107,2023-04-21
+"Excellent charging brick included, saves on buying extras.",OnePlus 9,4.5,729.00,user_0108,2023-04-22
+"Very responsive UI and minimal bloatware.",OnePlus 9,4.5,729.00,user_0109,2023-04-23
+"I had a minor issue with Bluetooth but a patch fixed it quickly.",OnePlus 9,3.5,722.00,user_0110,2023-04-24
+"Decent speakers and strong call quality in my area.",OnePlus 9,4.0,729.00,user_0111,2023-04-25
+"Camera software improvements could enhance color accuracy.",OnePlus 9,3.5,729.00,user_0112,2023-04-26
+"Overall a great performer for productivity and gaming.",OnePlus 9,5.0,729.00,user_0113,2023-04-27
+"Nice AMOLED display with deep blacks and good contrast.",OnePlus 9,4.5,729.00,user_0114,2023-04-28
+"Good value on sale and strong community support for mods.",OnePlus 9,4.0,699.00,user_0115,2023-04-29
+"Xiaomi offers strong specs for the price with competitive cameras.",Xiaomi Mi 11,4.0,749.00,user_0116,2023-04-30
+"Fast performance and great value; MIUI has come a long way.",Xiaomi Mi 11,4.5,749.00,user_0117,2023-05-01
+"Camera is very good in daylight but software needs tuning for night shots.",Xiaomi Mi 11,3.5,744.00,user_0118,2023-05-02
+"Battery lasts decently with moderate use; not flagship-level endurance.",Xiaomi Mi 11,4.0,749.00,user_0119,2023-05-03
+"Great display and high pixel density; perfect for media consumption.",Xiaomi Mi 11,4.5,749.00,user_0120,2023-05-04
+"MIUI occasionally shows ads in system apps; can be annoying.",Xiaomi Mi 11,3.0,749.00,user_0121,2023-05-05
+"Charging is very fast and gets you back to full quickly.",Xiaomi Mi 11,4.5,749.00,user_0122,2023-05-06
+"Solid camera hardware; computational photography still needs refinement.",Xiaomi Mi 11,4.0,749.00,user_0123,2023-05-07
+"Good price-to-performance ratio and a strong feature set.",Xiaomi Mi 11,4.5,749.00,user_0124,2023-05-08
+"Fingerprint sensor works well and is quick to unlock.",Xiaomi Mi 11,4.0,749.00,user_0125,2023-05-09
+"Speaker volume is adequate but lacks deep bass.",Xiaomi Mi 11,3.5,739.00,user_0126,2023-05-10
+"Nice design and comfortable grip for long use.",Xiaomi Mi 11,4.0,749.00,user_0127,2023-05-11
+"Connectivity has been stable with WiFi 6 supported.",Xiaomi Mi 11,4.0,749.00,user_0128,2023-05-12
+"Occasional software advertisements are the only downside.",Xiaomi Mi 11,3.0,749.00,user_0129,2023-05-13
+"Very fast boot times and quick app launches.",Xiaomi Mi 11,4.5,749.00,user_0130,2023-05-14
+"Camera excels in daylight with punchy colors and good detail.",Xiaomi Mi 11,4.5,749.00,user_0131,2023-05-15
+"Battery optimization modes help extend runtime significantly.",Xiaomi Mi 11,4.0,749.00,user_0132,2023-05-16
+"Great value if you want flagship-like specs at a lower price.",Xiaomi Mi 11,4.5,749.00,user_0133,2023-05-17
+"MIUI updates have improved stability and performance over time.",Xiaomi Mi 11,4.0,749.00,user_0134,2023-05-18
+"Screen brightness is excellent outdoors and HDR content looks great.",Xiaomi Mi 11,4.5,749.00,user_0135,2023-05-19
+"Some preinstalled apps are unnecessary but can be disabled.",Xiaomi Mi 11,3.5,749.00,user_0136,2023-05-20
+"Camera modes offer good versatility for different shooting needs.",Xiaomi Mi 11,4.0,749.00,user_0137,2023-05-21
+"I had minor connectivity drops once, but overall stable.",Xiaomi Mi 11,3.5,749.00,user_0138,2023-05-22
+"Smooth gaming performance at medium to high settings.",Xiaomi Mi 11,4.5,749.00,user_0139,2023-05-23
+"Great for power users on a budget who want high-end specs.",Xiaomi Mi 11,4.5,749.00,user_0140,2023-05-24
+"After months of use the iPhone still feels as fast as day one.",Apple iPhone 13,5.0,699.00,user_0141,2023-05-25
+"I appreciate the consistent software updates directly from Google.",Google Pixel 6,5.0,599.00,user_0142,2023-05-26
+"OnePlus fast charging saved me on a busy travel day — impressive.",OnePlus 9,5.0,729.00,user_0143,2023-05-27
+"Samsung's camera modes make capturing action shots easier.",Samsung Galaxy S21,4.5,799.00,user_0144,2023-05-28
+"Xiaomi offers a lot of hardware for the price but software ads can be off-putting.",Xiaomi Mi 11,3.5,749.00,user_0145,2023-05-29
+"Battery still performs well after several updates and optimizations.",Apple iPhone 13,4.5,699.00,user_0146,2023-05-30
+"Pixel's camera processing is excellent for street photography.",Google Pixel 6,5.0,599.00,user_0147,2023-05-31
+"Solid mid-range pricing with near-flagship features makes this a winner.",OnePlus 9,4.0,729.00,user_0148,2023-06-01
+"Samsung's color profiles are vivid and attractive for most users.",Samsung Galaxy S21,4.5,799.00,user_0149,2023-06-02
+"Xiaomi's hardware feels premium at a reasonable cost.",Xiaomi Mi 11,4.0,749.00,user_0150,2023-06-03
+"I sold my old phone for this and don't regret the upgrade.",Apple iPhone 13,5.0,699.00,user_0151,2023-06-04
+"Pixel 6 camera reproduction handles shadows very well.",Google Pixel 6,5.0,599.00,user_0152,2023-06-05
+"OnePlus performance remains snappy even after several months.",OnePlus 9,4.5,729.00,user_0153,2023-06-06
+"Galaxy battery life improved after enabling adaptive power saving.",Samsung Galaxy S21,4.0,799.00,user_0154,2023-06-07
+"Xiaomi's camera app offers many options but sometimes feels cluttered.",Xiaomi Mi 11,3.5,749.00,user_0155,2023-06-08
+"iPhone continues to be the go-to for reliable video capture.",Apple iPhone 13,5.0,699.00,user_0156,2023-06-09
+"Pixel's software perks like call screening are genuinely useful.",Google Pixel 6,4.5,599.00,user_0157,2023-06-10
+"OnePlus's community ROMs and mods give great customization options.",OnePlus 9,4.0,729.00,user_0158,2023-06-11
+"Samsung's One UI has matured and offers helpful features for daily use.",Samsung Galaxy S21,4.5,799.00,user_0159,2023-06-12
+"Xiaomi's photo detail is strong but colors sometimes need tuning.",Xiaomi Mi 11,4.0,749.00,user_0160,2023-06-13
+"iPhone's FaceTime and ecosystem integration are unmatched for me.",Apple iPhone 13,5.0,699.00,user_0161,2023-06-14
+"Pixel's camera excels without fancy hardware — smart processing.",Google Pixel 6,5.0,599.00,user_0162,2023-06-15
+"OnePlus's fast charging made long travel days manageable.",OnePlus 9,4.5,729.00,user_0163,2023-06-16
+"Galaxy's expandable storage is useful for large media libraries.",Samsung Galaxy S21,4.0,799.00,user_0164,2023-06-17
+"Xiaomi feels like a flagship at a fraction of the cost; great buy.",Xiaomi Mi 11,4.5,749.00,user_0165,2023-06-18
+"After a year, I'm impressed by how well the iPhone has aged.",Apple iPhone 13,4.5,699.00,user_0166,2023-06-19
+"Pixel updates keep the phone fresh and secure.",Google Pixel 6,5.0,599.00,user_0167,2023-06-20
+"OnePlus could improve camera tuning but hardware is solid.",OnePlus 9,3.5,729.00,user_0168,2023-06-21
+"Galaxy's display and audio make it my go-to media phone.",Samsung Galaxy S21,4.5,799.00,user_0169,2023-06-22
+"Xiaomi's charging speed is excellent and convenient.",Xiaomi Mi 11,4.5,749.00,user_0170,2023-06-23
+"iPhone remains a benchmark for user experience and stability.",Apple iPhone 13,5.0,699.00,user_0171,2023-06-24
+"Pixel's camera is perfect for quick snaps without fuss.",Google Pixel 6,5.0,599.00,user_0172,2023-06-25
+"OnePlus provides flagship power without an insane price tag.",OnePlus 9,4.5,729.00,user_0173,2023-06-26
+"Galaxy S21 proven reliability and strong hardware make it a safe choice.",Samsung Galaxy S21,4.5,799.00,user_0174,2023-06-27
+"Xiaomi's MIUI customizations are useful but can be overwhelming.",Xiaomi Mi 11,3.5,749.00,user_0175,2023-06-28
+"iPhone camera consistency keeps me coming back each year.",Apple iPhone 13,5.0,699.00,user_0176,2023-06-29
+"Pixel offers great AI features that boost everyday use.",Google Pixel 6,4.5,599.00,user_0177,2023-06-30
+"OnePlus battery lasts for most of my day with mixed usage.",OnePlus 9,4.0,729.00,user_0178,2023-07-01
+"Galaxy camera zoom quality is handy for distant shots.",Samsung Galaxy S21,4.0,799.00,user_0179,2023-07-02
+"Xiaomi provides excellent bang for your buck and good hardware.",Xiaomi Mi 11,4.5,749.00,user_0180,2023-07-03
+"A dependable phone with great resale value and steady updates.",Apple iPhone 13,4.5,699.00,user_0181,2023-07-04
+"Pixel's simplicity and camera prowess make it my daily driver.",Google Pixel 6,5.0,599.00,user_0182,2023-07-05
+"OnePlus offers top-tier charging and strong overall performance.",OnePlus 9,4.5,729.00,user_0183,2023-07-06
+"Galaxy has many useful features but can feel bloated for some users.",Samsung Galaxy S21,3.5,799.00,user_0184,2023-07-07
+"Xiaomi's performance at this price point is hard to beat.",Xiaomi Mi 11,4.5,749.00,user_0185,2023-07-08
+"iPhone camera yields reliable photos even without manual tweaking.",Apple iPhone 13,5.0,699.00,user_0186,2023-07-09
+"Pixel's call quality and signal strength are consistently good.",Google Pixel 6,4.0,599.00,user_0187,2023-07-10
+"OnePlus keeps delivering value for enthusiasts and power users.",OnePlus 9,4.0,729.00,user_0188,2023-07-11
+"Galaxy S21's software features are useful but sometimes unnecessary.",Samsung Galaxy S21,4.0,799.00,user_0189,2023-07-12
+"Xiaomi camera hardware is strong; software tuning can be improved.",Xiaomi Mi 11,4.0,749.00,user_0190,2023-07-13
+"Solid day-to-day performer with very few issues reported.",Apple iPhone 13,4.5,699.00,user_0191,2023-07-14
+"Pixel continues to impress as a straightforward, capable phone.",Google Pixel 6,5.0,599.00,user_0192,2023-07-15
+"OnePlus community support and accessories make it flexible.",OnePlus 9,4.0,729.00,user_0193,2023-07-16
+"Samsung's S21 remains a competitive option with solid overall specs.",Samsung Galaxy S21,4.5,799.00,user_0194,2023-07-17
+"Xiaomi gives you lots of features for the money; a smart buy.",Xiaomi Mi 11,4.5,749.00,user_0195,2023-07-18
+"After long use, the iPhone still feels snappy and updated.",Apple iPhone 13,4.5,699.00,user_0196,2023-07-19
+"Pixel's software-first approach ensures useful features and stability.",Google Pixel 6,5.0,599.00,user_0197,2023-07-20
+"OnePlus offers a clean experience with fast updates and performance.",OnePlus 9,4.5,729.00,user_0198,2023-07-21
+"Galaxy's camera and display combo makes it great for content creators.",Samsung Galaxy S21,4.5,799.00,user_0199,2023-07-22
+"Xiaomi packs flagship-class internals into a sensible price bracket.",Xiaomi Mi 11,4.5,749.00,user_0200,2023-07-23
