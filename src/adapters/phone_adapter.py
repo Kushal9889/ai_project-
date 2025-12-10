@@ -7,10 +7,10 @@ import re
 
 # Refined keywords to be more specific and avoid overlap
 ASPECT_KEYWORDS: Dict[str, List[str]] = {
-    "battery": [
+    "battery":[
         "battery", "battery life", "charge", "charging", "fast charge", "drain", 
         "sot", "screen on time", "mah", "endurance", "playback", "standby"
-    ],
+    ], 
     "camera": [
         "camera", "photo", "low light", "night mode", "zoom", "selfie", "autofocus", 
         "image", "picture", "video recording", "4k video", "1080p", "lens", "portrait", 
@@ -20,12 +20,12 @@ ASPECT_KEYWORDS: Dict[str, List[str]] = {
         "performance", "lag", "stutter", "slow", "fast", "fps", "benchmark", 
         "throttle", "overheat", "heating", "thermal", "processor", "chip", "ram", 
         "gaming", "snapdragon", "bionic", "dimensity", "multitasking"
-    ],
+    ], 
     "display": [
         "screen", "display", "resolution", "oled", "lcd", "brightness", "touch", 
         "ghost touch", "flicker", "dead pixel", "hz", "refresh rate", "amoled", "nits"
     ],
-    "build": [
+    "build":[
         "build", "durable", "durability", "scratch", "crack", "drop", "case", 
         "back glass", "feel", "design", "plastic", "metal", "glass", "weight", "grip"
     ],
@@ -36,7 +36,7 @@ ASPECT_KEYWORDS: Dict[str, List[str]] = {
     "connectivity": [
         "5g", "lte", "wifi", "bluetooth", "nfc", "signal", "dropped call", 
         "hotspot", "reception", "network", "sim", "gps"
-    ],
+    ], 
     "value": [
         "price", "cost", "value", "expensive", "cheap", "warranty", "support", 
         "customer service", "worth", "deal", "budget"

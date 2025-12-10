@@ -1,5 +1,5 @@
 """
-Central configuration for Elite-K project, updated with phone adapter defaults.
+Central configuration for True Score Analyser project, updated with phone adapter defaults.
 """
 import os
 

@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Clean Streamlit app for Elite-K phone review analyzer.
+"""Streamlit app for analyzing smartphone reviews.
 
-This file contains a single consistent implementation and no duplicated
-blocks. It imports helpers from src.app_helpers for CSV normalization.
+Provides a lightweight UI to upload or demo a reviews CSV, run the
+analysis pipeline (fake detection, sentiment, summarization, scoring),
+and inspect per-product results.
 """
 
-# IMPORTANT: Set this BEFORE importing any HuggingFace libraries
-# to suppress subprocess fork warnings when using Ollama CLI
+# Ensure tokenizers do not spawn parallel workers (helps avoid warnings
+# when using some local LLM tooling).
 import os
 os.environ.setdefault('TOKENIZERS_PARALLELISM', 'false')
 
@@ -29,17 +30,17 @@ from src.fake_detector import detect_fake_reviews
 from src.sentiment_engine import analyze_sentiments
 from src.summarizer import summarize_reviews
 from src.video_pipeline import analyze_video, fuse_scores
-from src.adapters import get_adapter
+from src.adapters.phone_adapter import get_adapter
 from src.score_phone import compute_trust_score
 from src.app_helpers import ensure_review_columns, ensure_product_column
 from src.aspect_extractor import map_sentences_to_reviews
 
 st.set_page_config(
-    page_title="Elite-K Phone Review Analyzer", 
+    page_title="True Score Analyser - Phone Review Analyzer", 
     layout="wide",
     initial_sidebar_state="expanded"  # Open sidebar by default
 )
-st.title("Elite-K — Smartphone Review Analyzer (MVP)")
+st.title("True Score Analyser — Smartphone Review Analyzer (MVP)")
 
 # initialize session state keys used for UI persistence
 for k, v in {
@@ -223,7 +224,8 @@ def detect_brands(df: pd.DataFrame, product_col: str) -> Tuple[pd.DataFrame, Lis
 
 
 def render_phone_table(df: pd.DataFrame, results: Dict[str, Dict]):
-    """No-op: phones list section intentionally removed (redundant with the interactive table)."""
+    """Placeholder for a phones list. The interactive table in the UI
+    replaces this, so no separate rendering is needed here."""
     return
 
 
@@ -264,7 +266,7 @@ def show_product_details(name: str, result: Dict):
         st.markdown(f"**Fake reviews:** {result.get('fake_count')} of {result.get('n_total')} ({result.get('fake_pct'):.1f}%)")
         st.subheader("Balanced summary")
         st.write(result.get('summ', {}).get('balanced_summary'))
-        # Detailed aspect breakdown as nested expanders (cleaner than raw JSON)
+        # Aspect summaries — shown as expandable sections for each aspect
         st.subheader("Aspect breakdown")
         asp_break = result.get('summ', {}).get('aspect_breakdown', {}) or {}
         if asp_break:
@@ -274,12 +276,12 @@ def show_product_details(name: str, result: Dict):
         else:
             st.info("No aspect summaries available.")
 
-        # Compact trust details (show key metrics without JSON dump)
+        # Trust details — key metrics presented in a compact table
         st.subheader("Trust details")
         trust = result.get('trust', {}) or {}
         trust_rows = [
             ("Final score", trust.get('final_score')),
-            # Confidence and N reviews intentionally removed for cleaner UI
+            # Confidence and total review counts are omitted here to keep the table concise
         ]
         try:
             import pandas as _pd
@@ -318,15 +320,43 @@ selected_provider = provider_map[sentiment_provider]
 # HuggingFace/Ollama -> mock_mode=False (use real APIs)
 auto_mock_mode = (selected_provider == "mock")
 
-# Fast/local mode removed from sidebar per UX request; default to False.
-fast_local_mode = False
+# If Ollama was selected, do a quick connectivity check to the local Ollama server
+# and automatically fallback to mock if the server is unreachable. This avoids a
+# confusing state where the UI shows Ollama but the runtime ends up effectively
+# using mock behavior due to connection failures.
+if selected_provider == "ollama":
+    try:
+        import requests
+        r = requests.get("http://localhost:11434/api/tags", timeout=2)
+        if r.status_code != 200:
+            st.sidebar.warning(f"Ollama server returned status {r.status_code}; falling back to Mock provider for this session.")
+            selected_provider = "mock"
+    except Exception:
+        st.sidebar.warning("Ollama server appears unreachable at http://localhost:11434; falling back to Mock provider for this session.")
+        selected_provider = "mock"
+
+# (fast-local mode was removed from the visible UI; selection is controlled
+# via the Provider radio buttons and the Mock mode checkbox)
 
 # Controls
-mock_mode = st.sidebar.checkbox(
-    "Mock mode for fake detection & summarization", 
-    value=auto_mock_mode,
-    help="When enabled, uses fast mock models for fake detection and summarization. Sentiment analysis is controlled by the provider above."
-)
+# If the user selected a real provider (HuggingFace or Ollama) we disable the
+# quick 'mock_mode' toggle to avoid accidentally running the pipeline in mock
+# mode when the UI intends to use an LLM or remote API for sentiment.
+if selected_provider != "mock":
+    mock_mode = st.sidebar.checkbox(
+        "Mock mode for fake detection & summarization",
+        value=False,
+        help="Disabled when using Ollama or Hugging Face provider — summarization and fake-detection will use real models when available.",
+        disabled=True,
+        key="mock_mode_checkbox"
+    )
+else:
+    mock_mode = st.sidebar.checkbox(
+        "Mock mode for fake detection & summarization",
+        value=auto_mock_mode,
+        help="When enabled, uses fast mock models for fake detection and summarization. Sentiment analysis is controlled by the provider above.",
+        key="mock_mode_checkbox"
+    )
 
 # Clear cached results when provider or mock_mode changes
 current_settings = f"{selected_provider}_{mock_mode}"
@@ -532,15 +562,15 @@ if tab == "Demo sample":
         st.stop()
 
     st.subheader("Demo: sample reviews")
-    # Show a compact demo preview limited to columns up to 'price' to keep the UI clean
+    # Show a compact preview (columns up to 'price') so the table stays concise
     demo_cols = _cols_up_to_price(df)
     try:
         st.dataframe(df[demo_cols].head(10).reset_index(drop=True))
     except Exception:
         st.dataframe(df.head(10).reset_index(drop=True))
 
-    # Correct call to run_pipeline_on_df passing the active_adapter
-    # For demo, we use default adapter unless user overrides in main UI (which is not shown for demo)
+    # Run the analysis pipeline for the demo using the default adapter.
+    # Users can change the adapter when uploading their own CSV.
     default_adapter = get_adapter()
     out = run_pipeline_on_df(df, provider=selected_provider, ollama_model=ollama_model, adapter=default_adapter)
     trust = out["trust"]
@@ -658,10 +688,10 @@ elif tab == "Upload CSV":
             grouping_map = {}
             choice = None
 
-        # === DYNAMIC PERSONALIZATION UI (MAIN AREA) ===
+        # Personalization settings
         st.markdown("---")
         st.subheader("🎯 Personalize Your Analysis")
-        st.markdown("Rank your top priorities. The system will use this to weight the scores.")
+        st.markdown("Pick the aspects that matter most to you. The app will weight scores based on your choices.")
 
         default_adapter = get_adapter()
         all_aspects = list(default_adapter["aspect_weights"].keys())
@@ -723,24 +753,19 @@ elif tab == "Upload CSV":
         analyze_btn = st.button("Analyze selection")
 
         # ensure hf_client exists
-        # If fast_local_mode is enabled, force MockHFClient to avoid remote calls
-        if fast_local_mode:
-            hf_client = MockHFClient()
-            used_provider = "mock"
-        else:
-            hf_client = MockHFClient()
-            if selected_provider == "huggingface" and hf_api_key:
-                hf_client = HFClient(api_key=hf_api_key)
+        hf_client = MockHFClient()
+        if selected_provider == "huggingface" and hf_api_key:
+            hf_client = HFClient(api_key=hf_api_key)
+            used_provider = "huggingface"
+        elif selected_provider == "huggingface":
+            try:
+                hf_client = HFClient()
                 used_provider = "huggingface"
-            elif selected_provider == "huggingface":
-                try:
-                    hf_client = HFClient()
-                    used_provider = "huggingface"
-                except Exception:
-                    hf_client = MockHFClient()
-                    used_provider = "mock"
-            else:
-                used_provider = selected_provider
+            except Exception:
+                hf_client = MockHFClient()
+                used_provider = "mock"
+        else:
+            used_provider = selected_provider
 
         if analyze_btn:
             results = {}
@@ -1053,17 +1078,9 @@ elif tab == "Upload CSV":
                             # Fallback simple display
                             st.write(f"Fake reviews: {fake_count} of {n_total}")
 
-                    # Show the genuine reviews that were used for LLM/summarization
-                    with st.expander("Genuine reviews used for analysis", expanded=True):
-                        gdf = r.get('genuine_df')
-                        if gdf is None or gdf.empty:
-                            st.info("No genuine reviews available for this product (all reviews may have been flagged as fake or filtered out).")
-                        else:
-                            cols = _cols_up_to_price(gdf)
-                            try:
-                                st.dataframe(gdf[cols].reset_index(drop=True))
-                            except Exception:
-                                st.dataframe(gdf.reset_index(drop=True))
+                    # (Genuine reviews table removed here to avoid duplicate
+                    # display — combined genuine reviews are shown above in the
+                    # analysis results section.)
                     
                     st.subheader("Aspect Quality Scores")
                     aspect_scores = trust.get("aspect_scores", {}) or {}
